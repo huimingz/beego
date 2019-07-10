@@ -111,7 +111,7 @@ func requiredCheck(ctl *beego.Controller, key string, required bool) (hasKey boo
 	return
 }
 
-func SetZeroValue(v reflect.Value) error {
+func setZeroValue(v reflect.Value) error {
 	switch v.Kind() {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		v.SetUint(0)
