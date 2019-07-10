@@ -84,7 +84,7 @@ func (p *RequerstParser) ParseArgs(c *beego.Controller, obj interface{}) (err er
 
 		if !hasKey {
 			// 设置默认值
-			err = SetZeroValue(objV.Field(i))
+			err = setZeroValue(objV.Field(i))
 			if err != nil {
 				return &ValueError{objT.Field(i).Name, err.Error()}
 			}
