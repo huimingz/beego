@@ -20,7 +20,7 @@ func (e ValueError) Error() string {
 	return e.key + ": " + e.msg
 }
 
-func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflect.Value, err error) {
+func tagFuncParser(tag string) (params []string, isFunc bool, err error) {
 	if tag == "" {
 		return
 	}
@@ -31,22 +31,43 @@ func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflec
 	}
 
 	group := compiler.FindStringSubmatch(tag)
+	params = append(params, group[1])
+	isFunc = true
 
-	vf, ok := vft.MethodByName(group[1])
+	args := strings.Split(group[2], ",")
+	if args[0] == "" && len(args) == 1 {
+		return
+	}
+
+	for i := 0; i < len(args); i++ {
+		args[i] = strings.TrimSpace(args[i])
+	}
+	params = append(params, args...)
+	return
+}
+
+func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflect.Value, err error) {
+	if tag == "" {
+		return
+	}
+
+	compiler, err := regexp.Compile(`(\w+)\(([\w, ]*)\)`)
+	if err != nil {
+		return
+	}
+
+	args, isFunc, err := tagFuncParser(tag)
+	if !isFunc || err != nil {
+		return
+	}
+
+	vf, ok := vft.MethodByName(args[0])
 	if !ok {
 		err = fmt.Errorf("invalid function name '%s'", group[1])
 	}
 
 	params = append(params, vf.Func)
-
-	if group[2] == "" {
-		return
-	}
-
-	args := strings.Split(group[2], ",")
-	if args[0] == "" && len(args) == 1 {
-		args = make([]string, 0)
-	}
+	args = args[1:]
 
 	// 检查参数是否是能转换为指定参数类型，否则返回错误
 	for i := 1; i < vf.Func.Type().NumIn(); i++ {
@@ -121,8 +142,52 @@ func setZeroValue(v reflect.Value) error {
 		v.SetString("")
 	case reflect.Float32, reflect.Float64:
 		v.SetFloat(0)
+	case reflect.Bool:
+		v.SetBool(false)
 	default:
 		return errors.New(fmt.Sprintf("'%s' is unsupported value type", v.Kind()))
 	}
+	return nil
+}
+
+func setDefault(val reflect.Value, def string) error {
+	errmsg := fmt.Sprintf("set default value failed, '%s' can't convert to %s type", def, val.Kind().String())
+
+	switch val.Kind() {
+	case reflect.String:
+		val.SetString(def)
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		v, err := strconv.Atoi(def)
+		if err != nil {
+			return errors.New(errmsg)
+		}
+		val.SetInt(int64(v))
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		v, err := strconv.Atoi(def)
+		if err != nil {
+			return errors.New(errmsg)
+		}
+		val.SetUint(uint64(v))
+
+	case reflect.Float32:
+		v, err := strconv.ParseFloat(def, 64)
+		if err != nil {
+			return errors.New(errmsg)
+		}
+		val.SetFloat(v)
+
+	case reflect.Bool:
+		if def == "" || def == "0" || strings.ToLower(def) == "false" {
+			val.SetBool(false)
+		} else {
+			val.SetBool(true)
+		}
+
+	default:
+		return fmt.Errorf("can't set default value to %s type", val.Kind().String())
+	}
+
 	return nil
 }

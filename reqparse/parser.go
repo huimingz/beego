@@ -87,10 +87,15 @@ func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT refle
 		}
 
 		var hasReuired = false
+		var hasDefault = false
+		var defParams []string
 		for _, tag := range tags {
 			if strings.Title(tag) == "Required" {
 				hasReuired = true
-				break
+			}
+
+			if strings.HasPrefix(strings.Title(tag),"Default") {
+				hasDefault = true
 			}
 		}
 
@@ -108,6 +113,7 @@ func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT refle
 			}
 		} else {
 			// 设置默认值
+
 			err = setZeroValue(objV.Field(i))
 			if err != nil {
 				return &ValueError{objT.Field(i).Name, err.Error()}
@@ -160,7 +166,7 @@ func (p *RequestParser) Valid(k string, tags []string, v reflect.Value) error {
 	vt := reflect.TypeOf(validator)
 
 	for _, tag := range tags {
-		if tag == "Required" {
+		if tag == "Required" || tag == "Default" {
 			continue
 		}
 
@@ -192,6 +198,8 @@ func (p *RequestParser) autoSetValue(geter ValueGetter, k string, v reflect.Valu
 	case reflect.String:
 		v.SetString(geter.GetString(k))
 	case reflect.Float32, reflect.Float64:
+	case reflect.Bool:
+
 	}
 	return nil
 }
