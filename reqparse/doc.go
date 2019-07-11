@@ -34,7 +34,7 @@ Useage
 	}
 
 	func (t *TestConroller) Post() {
-	    parser := reqparse.RequerstParser{}
+	    parser := reqparse.RequestParser{}
 	    stu := student{}
 	    err := parser.ParseArgs(&t.Controller, &stu)
 	    if err != nil {

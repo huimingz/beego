@@ -10,7 +10,7 @@ import (
 	"github.com/astaxie/beego"
 )
 
-type RequerstParser struct {
+type RequestParser struct {
 	HttpErrorCode    int
 	DisableAutoLower bool
 	ErrorsMap        map[string][]error
@@ -20,7 +20,7 @@ type RequerstParser struct {
 //  `parser:"c;Required;Range(1,2,3)"`
 // tag formate: parser:"kname; default(); choices(a,c,f); location("json"); trim; nullable" help:"xxxsa"
 
-func (p *RequerstParser) ParseArgs(c *beego.Controller, obj interface{}) (err error) {
+func (p *RequestParser) ParseArgs(c *beego.Controller, obj interface{}) (err error) {
 	if p.HttpErrorCode == 0 {
 		p.HttpErrorCode = http.StatusBadRequest
 	}
@@ -112,7 +112,7 @@ func (p *RequerstParser) ParseArgs(c *beego.Controller, obj interface{}) (err er
 
 }
 
-func (p RequerstParser) validCustom(key string, val, vs reflect.Value, t reflect.Type) error {
+func (p RequestParser) validCustom(key string, val, vs reflect.Value, t reflect.Type) error {
 	params := make([]reflect.Value, 2)
 	cvName := "Validate" + strings.Title(key)
 	cvMethod, ok := t.MethodByName(cvName)
@@ -137,7 +137,7 @@ func (p RequerstParser) validCustom(key string, val, vs reflect.Value, t reflect
 	return nil
 }
 
-func (p *RequerstParser) Valid(k string, tags []string, v reflect.Value) error {
+func (p *RequestParser) Valid(k string, tags []string, v reflect.Value) error {
 	// 验证条件
 	validator := Validation{v, k}
 	vt := reflect.TypeOf(validator)
@@ -164,7 +164,7 @@ func (p *RequerstParser) Valid(k string, tags []string, v reflect.Value) error {
 	return nil
 }
 
-func (p *RequerstParser) autoSetValue(geter ValueGetter, k string, v reflect.Value) error {
+func (p *RequestParser) autoSetValue(geter ValueGetter, k string, v reflect.Value) error {
 	switch v.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		val, err := geter.GetInt64(k)
