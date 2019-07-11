@@ -10,10 +10,10 @@ import (
 	"github.com/astaxie/beego"
 )
 
-var reqParser *RequestParser
+var ReqParser *RequestParser
 
 func init() {
-	reqParser = &RequestParser{}
+	ReqParser = &RequestParser{}
 }
 
 type RequestParser struct {
