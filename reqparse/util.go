@@ -47,15 +47,6 @@ func tagFuncParser(tag string) (params []string, isFunc bool, err error) {
 }
 
 func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflect.Value, err error) {
-	if tag == "" {
-		return
-	}
-
-	compiler, err := regexp.Compile(`(\w+)\(([\w, ]*)\)`)
-	if err != nil {
-		return
-	}
-
 	args, isFunc, err := tagFuncParser(tag)
 	if !isFunc || err != nil {
 		return
