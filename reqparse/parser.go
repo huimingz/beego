@@ -106,7 +106,7 @@ func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT refle
 			// 获取key的值，并设置该值
 			err = p.autoSetValue(&FromValues{ctl: c}, key, objV.Field(i))
 			if err != nil {
-				return err
+				return &ValueError{key, err.Error()}
 			}
 		} else {
 			// 设置默认值
@@ -207,7 +207,7 @@ func (p *RequestParser) autoSetValue(geter ValueGetter, k string, v reflect.Valu
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		val, err := geter.GetInt(k)
 		if err != nil {
-			return ValueError{k, fmt.Sprintf("'%s' is not a valid choice", geter.GetString(k))}
+			return fmt.Errorf("'%s' is not a valid choice", geter.GetString(k))
 		}
 		v.SetInt(val)
 
@@ -215,8 +215,21 @@ func (p *RequestParser) autoSetValue(geter ValueGetter, k string, v reflect.Valu
 		v.SetString(geter.GetString(k))
 
 	case reflect.Float32, reflect.Float64:
-	case reflect.Bool:
+		val, err := geter.GetFloat(k)
+		if err != nil {
+			return err
+		}
+		v.SetFloat(val)
 
+	case reflect.Bool:
+		val, err := geter.GetBool(k)
+		if err != nil {
+			return err
+		}
+		v.SetBool(val)
+
+	default:
+		return errors.New("unsupported value type")
 	}
 	return nil
 }
