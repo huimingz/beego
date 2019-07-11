@@ -84,14 +84,15 @@ func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT refle
 
 		var hasReuired = false
 		var hasDefault = false
-		var defParams []string
+		var defTagStr string
 		for _, tag := range tags {
 			if strings.Title(tag) == "Required" {
 				hasReuired = true
 			}
 
-			if strings.HasPrefix(strings.Title(tag),"Default") {
+			if strings.HasPrefix(strings.Title(tag), "Default(") {
 				hasDefault = true
+				defTagStr = tag
 			}
 		}
 
@@ -109,11 +110,29 @@ func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT refle
 			}
 		} else {
 			// 设置默认值
+			if hasDefault {
+				params, isFunc, err := tagFuncParser(defTagStr)
+				if !isFunc {
+					return &ValueError{key, fmt.Sprintf("'%s' is not valid tag", defTagStr)}
+				}
 
-			err = setZeroValue(objV.Field(i))
-			if err != nil {
-				return &ValueError{objT.Field(i).Name, err.Error()}
+				if len(params) < 2 {
+					return &ValueError{key, fmt.Sprintf("can't set default value")}
+				}
+
+				err = setDefault(objV.Field(i), params[1])
+				if err != nil {
+					return &ValueError{key, err.Error()}
+				}
+
+			} else {
+				err = setZeroValue(objV.Field(i))
+				if err != nil {
+					return &ValueError{key, err.Error()}
+				}
 			}
+			continue
+
 		}
 
 		// 验证值是否符合指定的条件
@@ -162,7 +181,7 @@ func (p *RequestParser) Valid(k string, tags []string, v reflect.Value) error {
 	vt := reflect.TypeOf(validator)
 
 	for _, tag := range tags {
-		if tag == "Required" || tag == "Default" {
+		if tag == "Required" || strings.HasPrefix(tag, "Default") {
 			continue
 		}
 
