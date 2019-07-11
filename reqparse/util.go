@@ -52,7 +52,13 @@ func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflec
 
 	vf, ok := vft.MethodByName(args[0])
 	if !ok {
-		err = fmt.Errorf("invalid function name '%s'", group[1])
+		err = fmt.Errorf("invalid function name '%s'", args[0])
+	}
+
+	// 检查参数长度是否符合方法参数长度
+	if len(args) < vf.Func.Type().NumIn() {
+		err = fmt.Errorf("call func '%s' with too few input arguments", vf.Name)
+		return
 	}
 
 	params = append(params, vf.Func)
@@ -81,14 +87,11 @@ func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflec
 		}
 	}
 
-	// 检查参数长度是否符合方法参数长度
-	if len(params) < vf.Func.Type().NumIn() {
-		err = fmt.Errorf("call func '%s' with too few input arguments", vf.Name)
-		return
-	} else if len(params) > vf.Func.Type().NumIn() {
+	if len(params) > vf.Func.Type().NumIn() {
 		err = fmt.Errorf("call func '%s' with too many input arguments", vf.Name)
 		return
 	}
+
 	return
 }
 
