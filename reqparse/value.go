@@ -6,6 +6,7 @@ type ValueGetter interface {
 	GetString(key string, def ...string) string
 	GetStrings(key string, def ...[]string) []string
 	GetInt(key string, def ...int64) (val int64, err error)
+	GetFloat(key string, def ...float64) (val float64, err error)
 	GetBool(key string, def ...bool) (val bool, err error)
 }
 
@@ -23,6 +24,10 @@ func (v *FromValues) GetStrings(k string, def ...[]string) []string {
 
 func (v *FromValues) GetInt(key string, def ...int64) (val int64, err error) {
 	return v.ctl.GetInt64(key)
+}
+
+func (v *FromValues) GetFloat(key string, def ...float64) (val float64, err error) {
+	return v.ctl.GetFloat(key)
 }
 
 func (v *FromValues) GetBool(key string, def ...bool) (val bool, err error) {
