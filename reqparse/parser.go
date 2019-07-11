@@ -10,6 +10,12 @@ import (
 	"github.com/astaxie/beego"
 )
 
+var reqParser *RequestParser
+
+func init() {
+	reqParser = &RequestParser{}
+}
+
 type RequestParser struct {
 	HttpErrorCode    int
 	DisableAutoLower bool
