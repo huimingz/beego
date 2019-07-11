@@ -2,6 +2,7 @@ package reqparse
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
@@ -10,11 +11,10 @@ import (
 )
 
 type RequerstParser struct {
-	HttpErrorCode int
-	DisableAutoLower     bool
-	ErrorsMap     map[string][]error
+	HttpErrorCode    int
+	DisableAutoLower bool
+	ErrorsMap        map[string][]error
 }
-
 
 // 标签格式：
 //  `parser:"c;Required;Range(1,2,3)"`
@@ -82,18 +82,18 @@ func (p *RequerstParser) ParseArgs(c *beego.Controller, obj interface{}) (err er
 			return err
 		}
 
-		if !hasKey {
+		if hasKey {
+			// 获取key的值，并设置该值
+			err = p.autoSetValue(&FromValues{ctl: c}, key, objV.Field(i))
+			if err != nil {
+				return err
+			}
+		} else {
 			// 设置默认值
 			err = setZeroValue(objV.Field(i))
 			if err != nil {
 				return &ValueError{objT.Field(i).Name, err.Error()}
 			}
-		}
-
-		// 获取key的值，并设置该值
-		err = p.AutoSetValue(&FromValues{ctl: c}, key, objV.Field(i), hasReuired)
-		if err != nil {
-			return err
 		}
 
 		// 验证值是否符合指定的条件
@@ -164,25 +164,16 @@ func (p *RequerstParser) Valid(k string, tags []string, v reflect.Value) error {
 	return nil
 }
 
-func (p *RequerstParser) AutoSetValue(geter ValueGetter, k string, v reflect.Value, hasKey bool) error {
+func (p *RequerstParser) autoSetValue(geter ValueGetter, k string, v reflect.Value) error {
 	switch v.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		if hasKey {
-			val, err := geter.GetInt64(k)
-			if err != nil {
-				return err
-			}
-			v.SetInt(val)
-		} else {
-			v.SetInt(0)
+		val, err := geter.GetInt64(k)
+		if err != nil {
+			return ValueError{k, fmt.Sprintf("'%s' is not a valid choice", geter.GetString(k))}
 		}
+		v.SetInt(val)
 	case reflect.String:
-		if hasKey {
-			v.SetString(geter.GetString(k))
-		} else {
-			v.SetString("")
-		}
-
+		v.SetString(geter.GetString(k))
 	case reflect.Float32, reflect.Float64:
 	}
 	return nil
