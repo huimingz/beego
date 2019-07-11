@@ -121,7 +121,7 @@ func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT refle
 		}
 
 		// 检查自定义验证
-		err = p.validCustom(key, objV.Field(i), objV, objT)
+		err = p.validCustom(objT.Field(i).Name, objV.Field(i), objV, objT)
 		if err != nil {
 			return &ValueError{key, err.Error()}
 		}
