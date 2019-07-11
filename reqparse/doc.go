@@ -15,6 +15,35 @@
 /*
 http请求时的参数解析器，需要搭配beego框架使用
 
-doc url: https://github.com/huimingz/beego/blob/master/reqparse/README.md
+Useage
+	type student struct {
+	    Name   string `parser:"username; Required"`
+	    Grade  string `parser:"grade; Required; Choices(A, B, C)"`
+	    Number int    `parser:";Required"`
+	}
+
+	func (u student) ValidateNumber(number int) error {
+	    if number < 0 {
+	        return errors.New("value must be greater than 0")
+	    }
+	    return nil
+	}
+
+	type TestConroller struct {
+	    beego.Controller
+	}
+
+	func (t *TestConroller) Post() {
+	    parser := reqparse.RequerstParser{}
+	    stu := student{}
+	    err := parser.ParseArgs(&t.Controller, &stu)
+	    if err != nil {
+	        t.Ctx.WriteString(err.Error() + "\n")
+	        return
+	    }
+	    t.Ctx.WriteString(fmt.Sprintf("%+v\n", stu))
+	}
+
+more docs: https://github.com/huimingz/beego/blob/master/reqparse/README.md
 */
 package reqparse
