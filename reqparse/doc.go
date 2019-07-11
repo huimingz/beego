@@ -15,54 +15,6 @@
 /*
 http请求时的参数解析器，需要搭配beego框架使用
 
-Example
-	type student struct {
-		Name   string `parser:"username; Required"`
-		Grade  string `parser:"grade; Required; Choices(A, B, C)"`
-		Number int    `parser:";Required"`
-	}
-
-	func (u student) ValidateNumber(number int) error {
-		if number < 0 {
-			return errors.New("value must be greater than 0")
-		}
-		return nil
-	}
-
-	type TestConroller struct {
-		beego.Controller
-	}
-
-	func (t *TestConroller) Post() {
-		parser := reqparse.RequerstParser{}
-		stu := student{}
-		err := parser.ParseArgs(&t.Controller, &stu)
-		if err != nil {
-			t.Ctx.WriteString(err.Error() + "\n")
-			return
-		}
-		t.Ctx.WriteString(fmt.Sprintf("%+v\n", stu))
-	}
-
-
-	$ curl -X POST -d "username=dd&grade=A" "http://localhost:8080/v1/test"
-	number: missing required parameter 'number'
-
-	$ curl -X POST -d "username=dd&grade=1" "http://localhost:8080/v1/test"
-	'1' is not a valid choice
-
-	$ curl -X POST -d "username=dd&grade=A&number=-2" "http://localhost:8080/v1/test"
-	number: value must be greater than 0
-
-	$ curl -X POST -d "username=dd&grade=A&number=2" "http://localhost:8080/v1/test"
-	{Name:dd Grade:A Number:2}
-
-支持的字段：
-	Required
-	Range(min, max)
-	Choices(1,2,3...)
-
-字段验证顺序为从左到右，会返回第一个错误。第一个字段为字段名key名，用户获取值，
-留空时默认使用该结构体字段名作为key名，默认全部小写。
+doc url:
 */
 package reqparse
