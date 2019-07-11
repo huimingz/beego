@@ -13,7 +13,6 @@ import (
 type RequestParser struct {
 	HttpErrorCode    int
 	DisableAutoLower bool
-	ErrorsMap        map[string][]error
 }
 
 // 标签格式：
