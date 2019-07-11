@@ -14,6 +14,7 @@ var ReqParser *RequestParser
 
 func init() {
 	ReqParser = &RequestParser{}
+	ReqParser.HttpErrorCode = http.StatusBadRequest
 }
 
 type RequestParser struct {
