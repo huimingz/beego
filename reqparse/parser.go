@@ -63,11 +63,7 @@ func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT refle
 
 		tag := objT.Field(i).Tag.Get("parser")
 		tags := strings.Split(tag, ";")
-
-		// 除去空白字符
-		for i, v := range tags {
-			tags[i] = strings.TrimSpace(v)
-		}
+		tags = stringSliceTrimSpace(tags)
 
 		// 获取字段名
 		if tags[0] == "" {

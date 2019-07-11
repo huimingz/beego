@@ -39,9 +39,7 @@ func tagFuncParser(tag string) (params []string, isFunc bool, err error) {
 		return
 	}
 
-	for i := 0; i < len(args); i++ {
-		args[i] = strings.TrimSpace(args[i])
-	}
+	args = stringSliceTrimSpace(args)
 	params = append(params, args...)
 	return
 }
@@ -63,7 +61,6 @@ func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflec
 	// 检查参数是否是能转换为指定参数类型，否则返回错误
 	for i := 1; i < vf.Func.Type().NumIn(); i++ {
 		arg := args[i-1]
-		arg = strings.TrimSpace(arg)
 
 		switch vf.Func.Type().In(i).Kind() {
 		case reflect.String:
@@ -77,7 +74,6 @@ func parseFunc(tag string, vft reflect.Type) (vf reflect.Method, params []reflec
 		case reflect.Slice:
 			choices := make([]string, len(args[i-1:]))
 			for index, arg_ := range args[i-1:] {
-				arg_ = strings.TrimSpace(arg_)
 				choices[index] = arg_
 			}
 			params = append(params, reflect.ValueOf(choices))
@@ -181,4 +177,11 @@ func setDefault(val reflect.Value, def string) error {
 	}
 
 	return nil
+}
+
+func stringSliceTrimSpace(s []string) []string {
+	for i := 0; i < len(s); i++ {
+		s[i] = strings.TrimSpace(s[i])
+	}
+	return s
 }
