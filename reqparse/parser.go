@@ -140,13 +140,7 @@ func (p RequerstParser) validCustom(key string, val, vs reflect.Value, t reflect
 func (p *RequerstParser) Valid(k string, tags []string, v reflect.Value) error {
 	// 验证条件
 	validator := Validation{v, k}
-
-	vFunc := map[string]reflect.Method{}
-
-	t := reflect.TypeOf(validator)
-	for i := 0; i < t.NumMethod(); i++ {
-		vFunc[t.Method(i).Name] = t.Method(i)
-	}
+	vt := reflect.TypeOf(validator)
 
 	for _, tag := range tags {
 		if tag == "Required" {
@@ -155,7 +149,7 @@ func (p *RequerstParser) Valid(k string, tags []string, v reflect.Value) error {
 
 		// 检查是否是函数
 
-		vf, params, err := parseFunc(tag, t)
+		vf, params, err := parseFunc(tag, vt)
 		if err != nil {
 			return err
 		}
