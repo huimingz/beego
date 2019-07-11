@@ -15,6 +15,6 @@
 /*
 http请求时的参数解析器，需要搭配beego框架使用
 
-doc url:
+doc url: https://github.com/huimingz/beego/blob/master/reqparse/README.md
 */
 package reqparse
