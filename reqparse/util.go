@@ -169,11 +169,11 @@ func setDefault(val reflect.Value, def string) error {
 		val.SetFloat(v)
 
 	case reflect.Bool:
-		if def == "" || def == "0" || strings.ToLower(def) == "false" {
-			val.SetBool(false)
-		} else {
-			val.SetBool(true)
+		v, err := strconv.ParseBool(def)
+		if err != nil {
+			return err
 		}
+		val.SetBool(v)
 
 	default:
 		return fmt.Errorf("can't set default value to %s type", val.Kind().String())
