@@ -26,7 +26,7 @@ type RequestParser struct {
 //  `parser:"c;Required;Range(1,2,3)"`
 // tag formate: parser:"kname; default(); choices(a,c,f); location("json"); trim; nullable" help:"xxxsa"
 
-func (p *RequestParser) ParseArgs(c *beego.Controller, obj interface{}) (err error) {
+func (p RequestParser) ParseArgs(c *beego.Controller, obj interface{}) (err error) {
 	if p.HttpErrorCode == 0 {
 		p.HttpErrorCode = http.StatusBadRequest
 	}
@@ -42,10 +42,22 @@ func (p *RequestParser) ParseArgs(c *beego.Controller, obj interface{}) (err err
 		return
 	}
 
+	return p.parse(c, objV, objT)
+}
+
+func (p RequestParser) parse(c *beego.Controller, objV reflect.Value, objT reflect.Type) error {
 	var key string
 	for i := 0; i < objV.NumField(); i++ {
 		// 跳过不可导出字段 (unexport struct field)
 		if !objV.Field(i).CanSet() {
+			continue
+		}
+
+		if objV.Field(i).Kind() == reflect.Struct {
+			err := p.parse(c, objV.Field(i), objT.Field(i).Type)
+			if err != nil {
+				return err
+			}
 			continue
 		}
 
@@ -115,7 +127,6 @@ func (p *RequestParser) ParseArgs(c *beego.Controller, obj interface{}) (err err
 		}
 	}
 	return nil
-
 }
 
 func (p RequestParser) validCustom(key string, val, vs reflect.Value, t reflect.Type) error {
