@@ -229,3 +229,7 @@ func (p *RequestParser) autoSetValue(geter ValueGetter, k string, v reflect.Valu
     }
     return nil
 }
+
+func ParseArgs(c *beego.Controller, obj interface{}) error {
+    return ReqParser.ParseArgs(c, obj)
+}
