@@ -198,27 +198,27 @@ func (p *RequestParser) Valid(k string, tags []string, v reflect.Value) error {
     return nil
 }
 
-func (p *RequestParser) autoSetValue(geter ValueGetter, k string, v reflect.Value) error {
+func (p *RequestParser) autoSetValue(getter ValueGetter, k string, v reflect.Value) error {
     switch v.Kind() {
     case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-        val, err := geter.GetInt(k)
+        val, err := getter.GetInt(k)
         if err != nil {
-            return fmt.Errorf("'%s' is not a valid choice", geter.GetString(k))
+            return fmt.Errorf("'%s' is not a valid choice", getter.GetString(k))
         }
         v.SetInt(val)
 
     case reflect.String:
-        v.SetString(geter.GetString(k))
+        v.SetString(getter.GetString(k))
 
     case reflect.Float32, reflect.Float64:
-        val, err := geter.GetFloat(k)
+        val, err := getter.GetFloat(k)
         if err != nil {
             return err
         }
         v.SetFloat(val)
 
     case reflect.Bool:
-        val, err := geter.GetBool(k)
+        val, err := getter.GetBool(k)
         if err != nil {
             return err
         }
